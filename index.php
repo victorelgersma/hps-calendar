@@ -207,6 +207,7 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
 
     <footer>
         Spotted an issue? E-mail <a href="mailto:victor@vjbe.net">victor@vjbe.net</a>
+        · <a href="https://github.com/victorelgersma/hps-calendar" target="_blank" rel="noopener">Source on GitHub</a>
     </footer>
 </main>
 </body>
