@@ -145,8 +145,14 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
     $sameMonth = $d->format('Y-m') === $end->format('Y-m');
     $time = trim(($ev['time-start'] ?? '') . (!empty($ev['time-end']) ? '–' . $ev['time-end'] : ''));
     $badge = $isPast ? null : badge($d, $end, $today);
+    // Everything a visitor might search for, lower-cased, for the search bar
+    $haystack = mb_strtolower(implode(' ', array_filter([
+        $ev['title'] ?? '', $ev['speaker'] ?? '', $ev['location'] ?? '',
+        $ev['reading'] ?? '', $ev['description'] ?? '',
+        implode(' ', event_tags($ev)), date_range_text($d, $end),
+    ], 'is_string')));
     ?>
-    <article class="event<?= $isPast ? ' past' : '' ?>">
+    <article class="event<?= $isPast ? ' past' : '' ?>" data-search="<?= e($haystack) ?>">
         <div class="date<?= $multi ? ' range' : '' ?>">
             <?php if ($multi): ?>
                 <span class="dow"><?= e($d->format('D') . '–' . $end->format('D')) ?></span>
@@ -175,6 +181,7 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
                 <?php if (!empty($ev['location'])): ?> · <?= e($ev['location']) ?><?php endif; ?>
             </p>
             <?php if (!empty($ev['speaker'])): ?><p class="speaker"><?= e($ev['speaker']) ?></p><?php endif; ?>
+            <?php if (!empty($ev['reading'])): ?><p class="reading"><span>Reading:</span> <?= e($ev['reading']) ?></p><?php endif; ?>
             <?php if (!empty($ev['description'])): ?><p class="desc"><?= nl2br(e($ev['description'])) ?></p><?php endif; ?>
             <?php
             $links = [];
@@ -202,97 +209,21 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HPS Talks Utrecht</title>
-    <style>
-        :root {
-            --bg: #faf8f4; --card: #ffffff; --text: #1f1d1a; --muted: #6b665e;
-            --line: #e6e1d8; --accent: #b3261e; --badge-bg: #fbe9e7;
-            --tag-bg: #e8eef7; --tag-text: #25467a;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #161514; --card: #1f1e1c; --text: #ece8e1; --muted: #a39d93;
-                --line: #2e2c29; --accent: #ef8a80; --badge-bg: #3a2320;
-                --tag-bg: #1f2a3b; --tag-text: #9dbbea;
-            }
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; background: var(--bg); color: var(--text);
-            font: 16px/1.5 Georgia, "Iowan Old Style", "Times New Roman", serif;
-        }
-        main { max-width: 720px; margin: 0 auto; padding: 48px 16px 64px; }
-        header h1 { margin: 0; font-size: 2rem; letter-spacing: -0.01em; }
-        header p { margin: 4px 0 0; color: var(--muted); }
-        h2 {
-            font: 600 0.8rem/1 system-ui, sans-serif; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--muted);
-            margin: 40px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
-        }
-        .event {
-            display: flex; gap: 18px; background: var(--card);
-            border: 1px solid var(--line); border-radius: 10px;
-            padding: 16px; margin-bottom: 12px;
-        }
-        .event.past { opacity: 0.6; }
-        .date {
-            flex: 0 0 56px; text-align: center; font-family: system-ui, sans-serif;
-            display: flex; flex-direction: column; line-height: 1.1;
-        }
-        .date .dow, .date .mon { font-size: 0.72rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
-        .date .day { font-size: 1.9rem; font-weight: 700; color: var(--accent); margin: 2px 0; }
-        .date.range { flex-basis: 64px; }
-        .date.range .day { font-size: 1.3rem; white-space: nowrap; }
-        .date.range .dow, .date.range .mon { white-space: nowrap; }
-        .body { min-width: 0; }
-        .body h3 { margin: 0 0 4px; font-size: 1.1rem; line-height: 1.35; }
-        .meta, .speaker { margin: 0; color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.88rem; }
-        .desc { margin: 8px 0 0; }
-        .labels { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
-        .badge {
-            display: inline-block; font: 600 0.7rem/1 system-ui, sans-serif;
-            text-transform: uppercase; letter-spacing: 0.06em;
-            background: var(--badge-bg); color: var(--accent);
-            padding: 4px 7px; border-radius: 4px;
-        }
-        .tag {
-            display: inline-block; font: 500 0.75rem/1 system-ui, sans-serif;
-            color: var(--tag-text); background: var(--tag-bg);
-            padding: 5px 10px; border-radius: 999px; text-decoration: none;
-            border: 1px solid transparent;
-        }
-        .tag:hover { border-color: var(--tag-text); }
-        .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 20px; }
-        .filters .label { font: 0.8rem system-ui, sans-serif; color: var(--muted); margin-right: 2px; }
-        .filters .tag { font-size: 0.85rem; padding: 6px 12px; background: transparent; border-color: var(--line); color: var(--text); }
-        .filters .tag.active { background: var(--tag-text); border-color: var(--tag-text); color: var(--card); }
-        .attachments { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
-        .attachments a {
-            font: 0.85rem system-ui, sans-serif; color: var(--text); text-decoration: none;
-            border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px;
-        }
-        .attachments a:hover { border-color: var(--accent); color: var(--accent); }
-        .empty, .error { color: var(--muted); font-style: italic; }
-        .error { color: var(--accent); }
-        details { margin-top: 40px; }
-        summary { cursor: pointer; color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.9rem; }
-        .problems { color: var(--accent); font: 0.85rem system-ui, sans-serif; }
-        .problems summary { color: var(--accent); }
-        footer { margin-top: 56px; color: var(--muted); font: 0.85rem system-ui, sans-serif; }
-        footer a { color: inherit; }
-        @media (max-width: 480px) {
-            .event { gap: 12px; padding: 14px; }
-            .date { flex-basis: 44px; }
-            .date .day { font-size: 1.5rem; }
-            .date.range { flex-basis: 56px; }
-            .date.range .day { font-size: 1.1rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
     <header>
-        <h1>HPS Talks Utrecht</h1>
-        <p>Unofficial calendar of talks related to History and Philosophy of Science in Utrecht. Maintained by Victor Elgersma-Azmanov. </p>
+        <div class="title-row">
+            <h1>HPS Talks Utrecht</h1>
+            <div class="search" hidden>
+                <button type="button" class="search-toggle" aria-label="Search" aria-expanded="false" aria-controls="q">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+                <input id="q" type="search" aria-label="Search" autocomplete="off" tabindex="-1">
+            </div>
+        </div>
+        <p>Extracurricular talks related to History and Philosophy of Science in Utrecht.</p>
         <?php if ($allTags): ?>
             <nav class="filters" aria-label="Filter by topic">
                 <span class="label">Show:</span>
@@ -303,6 +234,8 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
             </nav>
         <?php endif; ?>
     </header>
+
+    <p class="empty" id="no-results" hidden>No events match your search.</p>
 
     <?php if ($error): ?>
         <p class="error"><?= e($error) ?></p>
@@ -318,7 +251,7 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
     <?php endif; ?>
 
     <?php if ($past): ?>
-        <details>
+        <details id="past">
             <summary>Past events (<?= count($past) ?>)</summary>
             <?php foreach ($past as $ev) render_event($ev, $today, true); ?>
         </details>
@@ -338,5 +271,72 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
         · <a href="https://github.com/victorelgersma/hps-calendar" target="_blank" rel="noopener">Source on GitHub</a>
     </footer>
 </main>
+<script>
+// Instant search: hides cards (and empty month headings) that don't match.
+// Every word must appear somewhere in the event; ?q=... is kept in the URL.
+(function () {
+    var box = document.querySelector('.search');
+    var input = document.getElementById('q');
+    var toggle = box && box.querySelector('.search-toggle');
+    var cards = Array.prototype.slice.call(document.querySelectorAll('article.event'));
+    var sections = Array.prototype.slice.call(document.querySelectorAll('main > section'));
+    var past = document.getElementById('past');
+    var none = document.getElementById('no-results');
+    if (!box || !cards.length) return;
+    box.hidden = false;
+
+    var params = new URLSearchParams(location.search);
+    input.value = params.get('q') || '';
+
+    function norm(s) {
+        return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+    cards.forEach(function (c) { c._text = norm(c.getAttribute('data-search') || ''); });
+
+    function apply() {
+        var words = norm(input.value).split(/\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (c) {
+            var hit = words.every(function (w) { return c._text.indexOf(w) !== -1; });
+            c.hidden = !hit;
+            if (hit) shown++;
+        });
+        sections.forEach(function (s) {
+            s.hidden = !s.querySelector('article.event:not([hidden])');
+        });
+        if (past) {
+            var pastHits = past.querySelectorAll('article.event:not([hidden])').length;
+            past.hidden = pastHits === 0;
+            if (words.length && pastHits) past.open = true;
+        }
+        none.hidden = !(words.length && shown === 0);
+
+        if (input.value) params.set('q', input.value); else params.delete('q');
+        var qs = params.toString();
+        history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+    }
+    function setOpen(open) {
+        box.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        input.tabIndex = open ? 0 : -1;
+        if (open) input.focus();
+    }
+    toggle.addEventListener('click', function () {
+        if (!box.classList.contains('open')) setOpen(true);
+        else if (!input.value) setOpen(false);
+        else input.focus();
+    });
+    input.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape') { input.value = ''; apply(); setOpen(false); toggle.focus(); }
+    });
+    input.addEventListener('blur', function () {
+        if (!input.value) setTimeout(function () {
+            if (document.activeElement !== toggle) setOpen(false);
+        }, 150);
+    });
+    input.addEventListener('input', apply);
+    if (input.value) { box.classList.add('open'); toggle.setAttribute('aria-expanded', 'true'); input.tabIndex = 0; apply(); }
+})();
+</script>
 </body>
 </html>
