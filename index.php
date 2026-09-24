@@ -209,7 +209,8 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HPS Talks Utrecht</title>
-    <link rel="stylesheet" href="style.css">
+    <?php /* ?v= changes whenever style.css changes, so browsers never use a stale copy */ ?>
+    <link rel="stylesheet" href="style.css?v=<?= @filemtime(__DIR__ . '/style.css') ?: 1 ?>">
 </head>
 <body>
 <main>
@@ -224,6 +225,7 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
             </div>
         </div>
         <p>Extracurricular talks related to History and Philosophy of Science in Utrecht.</p>
+        <p><small>Unofficial overview compiled by a student. Always check the details with the organisers.</small></p>
         <?php if ($allTags): ?>
             <nav class="filters" aria-label="Filter by topic">
                 <span class="label">Show:</span>
