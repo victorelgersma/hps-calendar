@@ -113,3 +113,21 @@ footer a { color: inherit; }
     .search.open input { width: auto; flex: 1; min-width: 0; }
 }
 [hidden] { display: none !important; }
+
+/* "Submit a correction" button + correction page */
+.button {
+    display: inline-block; margin-top: 10px;
+    font: 500 0.85rem/1 system-ui, sans-serif; text-decoration: none;
+    color: var(--accent); border: 1px solid var(--accent);
+    padding: 7px 14px; border-radius: 999px;
+}
+.button:hover { background: var(--badge-bg); }
+.back { font: 0.9rem system-ui, sans-serif; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--text); }
+.notice {
+    margin-top: 32px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px;
+}
+.notice p { margin: 0 0 8px; }
+.notice p:last-child { margin: 0; }
+.notice a { color: var(--accent); }

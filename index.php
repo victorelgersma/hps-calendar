@@ -226,6 +226,7 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
         </div>
         <p>Extracurricular talks related to History and Philosophy of Science in Utrecht.</p>
         <p><small>Unofficial overview compiled by a student. Always check the details with the organisers.</small></p>
+        <p><a class="button" href="correction.php">Submit a correction</a></p>
         <?php if ($allTags): ?>
             <nav class="filters" aria-label="Filter by topic">
                 <span class="label">Show:</span>
