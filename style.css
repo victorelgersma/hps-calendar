@@ -122,6 +122,8 @@ footer a { color: inherit; }
     padding: 7px 14px; border-radius: 999px;
 }
 .button:hover { background: var(--badge-bg); }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.buttons .button { margin-top: 10px; }
 .back { font: 0.9rem system-ui, sans-serif; color: var(--muted); text-decoration: none; }
 .back:hover { color: var(--text); }
 .notice {

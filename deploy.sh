@@ -21,6 +21,6 @@ echo "  ✓ $(ls events/*.json | wc -l | tr -d ' ') event files OK"
 
 echo "==> Uploading to $REMOTE_HOST..."
 # --delete only applies inside events/: removing an event file locally removes that event online
-rsync -avz --delete index.php correction.php style.css events "$REMOTE_HOST:$REMOTE_PATH"
+rsync -avz --delete index.php correction.php contributing.php style.css events "$REMOTE_HOST:$REMOTE_PATH"
 
 echo "==> Done: https://hps-calendar.vjbe.net"

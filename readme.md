@@ -6,3 +6,7 @@ This is the calendar for extracurricular events at HPS. Data lives in events.jso
 
 Create a PHP file that reads from the events.json and creates a nice calendar overview of upcoming events. 
 
+
+UPAC colloquia: 
+
+https://www.uu.nl/en/research/utrecht-philosophy-of-astronomy-cosmology/events/upac-colloquium

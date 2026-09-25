@@ -1,0 +1,15 @@
+{
+    "date": "2027-01-05",
+    "time-start": "16:00",
+    "time-end": "17:00",
+    "title": "UPAC Work in Progress (t.b.a.)",
+    "location": "BBG 3.45, Princetonplein 5",
+    "description": "UPAC Colloquium (Utrecht Philosophy of Astronomy & Cosmology): work-in-progress session; the draft is sent out beforehand via the upac-l mailing list. Hybrid; the Teams link goes out via the same list.",
+    "tags": [
+        "UPAC"
+    ],
+    "attachments": [
+        {"title": "UPAC schedule", "URL": "https://www.uu.nl/en/research/utrecht-philosophy-of-astronomy-cosmology/events/upac-colloquium"},
+        {"title": "mailing list", "URL": "https://mailman.science.uu.nl/mailman/listinfo/upac-l"}
+    ]
+}

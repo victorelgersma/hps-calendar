@@ -1,0 +1,16 @@
+{
+    "date": "2026-12-08",
+    "time-start": "16:00",
+    "time-end": "17:00",
+    "title": "UPAC Reading Group: Asteroseismology",
+    "location": "BBG 3.45, Princetonplein 5",
+    "reading": "Suarez (title t.b.a.)",
+    "description": "UPAC Colloquium (Utrecht Philosophy of Astronomy & Cosmology): reading group, read the paper in advance. Hybrid; the Teams link goes out via the upac-l mailing list.",
+    "tags": [
+        "UPAC"
+    ],
+    "attachments": [
+        {"title": "UPAC schedule", "URL": "https://www.uu.nl/en/research/utrecht-philosophy-of-astronomy-cosmology/events/upac-colloquium"},
+        {"title": "mailing list", "URL": "https://mailman.science.uu.nl/mailman/listinfo/upac-l"}
+    ]
+}
