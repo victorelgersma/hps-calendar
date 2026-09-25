@@ -145,13 +145,14 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
     $sameMonth = $d->format('Y-m') === $end->format('Y-m');
     $time = trim(($ev['time-start'] ?? '') . (!empty($ev['time-end']) ? '–' . $ev['time-end'] : ''));
     $badge = $isPast ? null : badge($d, $end, $today);
+    $city = trim((string) ($ev['city'] ?? ''));
+    $away = ($city !== '' && mb_strtolower($city) !== 'utrecht') ? $city : null;
     // Everything a visitor might search for, lower-cased, for the search bar
     $haystack = mb_strtolower(implode(' ', array_filter([
-        $ev['title'] ?? '', $ev['speaker'] ?? '', $ev['location'] ?? '',
-        $ev['reading'] ?? '', $ev['description'] ?? '',
-        implode(' ', event_tags($ev)), date_range_text($d, $end),
-    ], 'is_string')));
-    ?>
+    $ev['title'] ?? '', $ev['speaker'] ?? '', $ev['location'] ?? '', $ev['city'] ?? '',
+    $ev['reading'] ?? '', $ev['description'] ?? '',
+    implode(' ', event_tags($ev)), date_range_text($d, $end),
+    ], 'is_string'))); ?>
     <article class="event<?= $isPast ? ' past' : '' ?>" data-search="<?= e($haystack) ?>">
         <div class="date<?= $multi ? ' range' : '' ?>">
             <?php if ($multi): ?>
@@ -165,10 +166,11 @@ function render_event(array $ev, DateTimeImmutable $today, bool $isPast = false)
             <?php endif; ?>
         </div>
         <div class="body">
-            <?php $tags = event_tags($ev); if ($badge || $tags): ?>
-                <div class="labels">
-                    <?php if ($badge): ?><span class="badge"><?= e($badge) ?></span><?php endif; ?>
-                    <?php foreach ($tags as $t): ?>
+            <?php $tags = event_tags($ev); if ($badge || $away || $tags): ?>
+            <div class="labels">
+    <?php if ($badge): ?><span class="badge"><?= e($badge) ?></span><?php endif; ?>
+    <?php if ($away): ?><span class="badge away">In <?= e($away) ?></span><?php endif; ?>
+    <?php foreach ($tags as $t): ?>
                         <a class="tag" href="<?= e(tag_url($t)) ?>"><?= e($t) ?></a>
                     <?php endforeach; ?>
                 </div>
